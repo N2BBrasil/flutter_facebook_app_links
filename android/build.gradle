@@ -15,6 +15,7 @@ buildscript {
 
 rootProject.allprojects {
     repositories {
+        mavenCentral()
         google()
         jcenter()
     }
@@ -34,7 +35,7 @@ android {
     }
 
     dependencies {
-        implementation 'com.facebook.android:facebook-core:[5,6)'
-        implementation 'com.facebook.android:facebook-applinks:[5,6)'
+        compile 'com.facebook.android:facebook-core:5.11.0'
+        compile 'com.facebook.android:facebook-applinks:5.11.0'
     }
 }
