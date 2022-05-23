@@ -1,9 +1,10 @@
 package it.remedia.flutter_facebook_app_links;
 
-import android.app.Activity;
 import android.content.Context;
 import android.os.Handler;
 //import android.util.Log;
+
+import androidx.annotation.NonNull;
 
 import com.facebook.applinks.AppLinkData;
 import com.facebook.FacebookSdk;
@@ -11,48 +12,18 @@ import com.facebook.FacebookSdk;
 import java.util.HashMap;
 import java.util.Map;
 
+import io.flutter.embedding.engine.plugins.FlutterPlugin;
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
 import io.flutter.plugin.common.MethodChannel.Result;
-import io.flutter.plugin.common.PluginRegistry;
-import io.flutter.plugin.common.PluginRegistry.Registrar;
 
 /** FlutterFacebookAppLinksPlugin */
-public class FlutterFacebookAppLinksPlugin implements MethodCallHandler {
-
+public class FlutterFacebookAppLinksPlugin implements FlutterPlugin {
   private Context mContext;
-  private Activity mActivity;
+  private MethodChannel mChannel;
 
   private static final String CHANNEL = "plugins.remedia.it/flutter_facebook_app_links";
-
-  /** Plugin registration. */
-  public static void registerWith(Registrar registrar) {
-    final MethodChannel channel = new MethodChannel(registrar.messenger(), CHANNEL);
-
-    FlutterFacebookAppLinksPlugin instance = new FlutterFacebookAppLinksPlugin(registrar);
-    channel.setMethodCallHandler(instance);
-  }
-
-  // Constructor to initialize plugin inside the 'registerWith' method
-  private FlutterFacebookAppLinksPlugin(PluginRegistry.Registrar registrar){
-
-    this.mContext = registrar.activeContext();
-    this.mActivity = registrar.activity();
-
-  }
-
-  @Override
-  public void onMethodCall(MethodCall call, Result result) {
-    if (call.method.equals("getPlatformVersion")) {
-      result.success("Android " + android.os.Build.VERSION.RELEASE);
-    } else if(call.method.equals("initFBLinks")){
-
-      initFBLinks(result);
-    } else {
-      result.notImplemented();
-    }
-  }
 
   private void initFBLinks(Result result) {
     //Log.d("FB_APP_LINKS", "Facebook App Links initialized");
@@ -114,4 +85,27 @@ public class FlutterFacebookAppLinksPlugin implements MethodCallHandler {
   }
 
 
+  @Override
+  public void onAttachedToEngine(@NonNull FlutterPlugin.FlutterPluginBinding binding) {
+    mContext = binding.getApplicationContext();
+    mChannel = new MethodChannel(binding.getBinaryMessenger(), CHANNEL);
+    mChannel.setMethodCallHandler(new MethodCallHandler() {
+      @Override
+      public void onMethodCall(@NonNull MethodCall call, @NonNull Result result) {
+        if (call.method.equals("getPlatformVersion")) {
+          result.success("Android " + android.os.Build.VERSION.RELEASE);
+        } else if(call.method.equals("initFBLinks")){
+
+          initFBLinks(result);
+        } else {
+          result.notImplemented();
+        }
+      }
+    });
+  }
+
+  @Override
+  public void onDetachedFromEngine(@NonNull FlutterPlugin.FlutterPluginBinding binding) {
+    mChannel.setMethodCallHandler(null);
+  }
 }
